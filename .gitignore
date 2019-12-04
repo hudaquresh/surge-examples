@@ -32,3 +32,6 @@
 *.exe
 *.out
 *.app
+
+# Folders
+ensemble_square_basin/storm-surge/
