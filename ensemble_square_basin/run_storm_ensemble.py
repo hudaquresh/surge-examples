@@ -168,7 +168,7 @@ def run_storm_job(first_storm = 0,
             #storm.max_wind_radius = mwr
  
             # Name storm file and write to log  
-            storm_name = 'synthetici_%s.storm' % str(n)  
+            storm_name = 'synthetic_%s.storm' % str(n)  
             run_log_file.write("%s %s\n" % (n, '%s' %storm_name))
 
             # Add job to queue  

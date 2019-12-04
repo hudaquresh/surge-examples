@@ -106,7 +106,7 @@ class StormJob(batch.HabaneroJob):
  
                                                   
         # Write storm data objects 
-        storm_file = "%s_%s.storm" % (self.region, self.prefix) 
+        storm_file = "synthetic_%s.storm" % (self.region, self.prefix) 
         self.rundata.surge_data.storm_file = os.path.join(self.storm_directory,
                                                           storm_file)
     
