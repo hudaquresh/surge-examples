@@ -168,7 +168,7 @@ def run_storm_job(first_storm = 0,
             #storm.max_wind_radius = mwr
  
             # Name storm file and write to log  
-            storm_name = 'synthetic_%s.storm' % str(n)  
+            storm_name = 'SquareBasin_%s.storm' % str(n)  
             run_log_file.write("%s %s\n" % (n, '%s' %storm_name))
 
             # Add job to queue  
@@ -178,7 +178,7 @@ def run_storm_job(first_storm = 0,
                                  wind_model           = wind_model, 
                                  amr_level            = amr_level, 
                                  storm_ensemble_type  = "Synthetic", 
-                                 region               = "Square Basin", 
+                                 region               = "SquareBasin", 
                                  gauges               = storm_gauges, 
                                  regions              = regions_data))
             num_storms = 1  
