@@ -371,8 +371,8 @@ for i in range(0, 1000):
     storm.max_wind_speed = mws 
     storm.max_wind_radius = mwr 
     
-    storm_file = os.path.join(os.getcwd(), directory, "synthetic_%s" %str(i))
-    storm.write(storm_file, file_format='geoclaw')
+    #storm_file = os.path.join(os.getcwd(), directory, "SquareBasing_%s" %str(i))
+    #storm.write(storm_file, file_format='geoclaw')
     
 #     perturbed_radii.append(mwr)
 #     perturbed_winds.append(mws)
@@ -425,7 +425,7 @@ def run_storm_job(first_storm = 0,
     storm_gauges = None
     regions_data = None
 
-    num_storms = 10
+    num_storms = 1000
  
     with open(path, 'w') as run_log_file: 
         jobs = []
@@ -455,7 +455,7 @@ def run_storm_job(first_storm = 0,
                                  region               = "SquareBasin", 
                                  gauges               = storm_gauges, 
                                  regions              = regions_data))
-            num_storms = 1  
+            #num_storms = 1  
 
             if n == num_storms-1:
                #controller = StormHabaneroBatchController(jobs)
@@ -483,22 +483,11 @@ if __name__ == '__main__':
         model = str(sys.argv[1])
         amr_l = int(sys.argv[2]) 
     
-    # Batch 1 (0-599) 
+    # Batch 1 (0 - 1000)  
     run_storm_job(first_storm = 0,
-                   last_storm  = 0,
+                   last_storm  = 1000,
                    wind_model = model, 
                    amr_level = amr_l)  
  
-    ## Batch 2 (600-1199) 
-    #run_storm_job(first_storm = 600,
-    #               last_storm  = 679,
-    #               wind_model = model, 
-    #               amr_level = amr_l) 
-
-    ### Batch 3 (1200-1849) 
-    ##run_storm_job(first_storm = 1200,
-    ##               last_storm  = 1300,
-    ##               wind_model = model, 
-    ##               amr_level = amr_l) 
 
  
