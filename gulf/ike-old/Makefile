@@ -20,9 +20,7 @@ SETPLOT_FILE = setplot.py      # File containing function to set plots
 PLOTDIR = _plots               # Directory for plots
 
 # Environment variable FC should be set to fortran compiler, e.g. gfortran
-#FFLAGS ?=
-FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib
-LFLAGS += -fopenmp -L$(NETCDF4_DIR)/lib -lnetcdff
+FFLAGS ?=
 
 # ---------------------------------
 # package sources for this program:
@@ -58,4 +56,16 @@ SOURCES = \
 # Include Makefile containing standard definitions and make options:
 include $(CLAWMAKE)
 
+.PHONY: topo all
+
+# Construct the topography data
+topo:
+	../bathy/get_bathy.py ../bathy/
+
+-all: 
+	$(MAKE) topo
+	$(MAKE) .plots
+
+
 ### DO NOT remove this line - make depends on it ###
+

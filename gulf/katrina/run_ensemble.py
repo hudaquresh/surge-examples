@@ -48,7 +48,9 @@ class StormJob(batch.HabaneroJob):
     
     """
     def __init__(self, wind_model, 
-                       amr_level):  
+                       amr_level, 
+                       storm, 
+                       region):  
         r"""
         Initialize a StormJob object.
 
@@ -59,8 +61,10 @@ class StormJob(batch.HabaneroJob):
         super(StormJob, self).__init__()
 
         self.type = "storm-surge"
+        self.storm = storm 
+        self.region = region 
  
-        self.name = "old-ike-amr%s" %str(amr_level) 
+        self.name = "%s-amr%s" %(storm, str(amr_level))  
         self.prefix = "%s" %(wind_model)  
         self.executable = 'xgeoclaw'
 
@@ -74,14 +78,15 @@ class StormJob(batch.HabaneroJob):
 
     def __str__(self):
         output = super(StormJob, self).__str__()
-        output += "\n  Region       : Gulf \n"
-        output += "\n  Storm Format : Ike  \n"  
-        output += "\n  Wind Model   : %s   \n" % self.prefix
+        output += "\n  Region       : %s \n" % self.region
+        output += "\n  Storm        : %s \n" % self.storm  
+        output += "\n  Wind Model   : %s \n" % self.prefix
         output += "\n"
         return output
 
 
-def run_ike(wind_models = None, amr_level = None): 
+def run_storm(wind_models = None, amr_level = None, 
+                    storm = None, region = None): 
             
     r"""
     Setup jobs to run the storm ike using all 
@@ -91,6 +96,9 @@ def run_ike(wind_models = None, amr_level = None):
     
     
     """
+
+    if storm or region is None: 
+        return "Please provide a storm and a region."  
 
     # Default if no parameters given 
     if wind_models is None: 
@@ -113,8 +121,6 @@ def run_ike(wind_models = None, amr_level = None):
     #if not os.path.exists(path):
     #    os.makedirs(os.path.dirname(path))
 
-    print('Log file created') 
-    print("") 
 
     jobs = []  
     #with open(path, 'w') as run_log_file: 
@@ -122,7 +128,7 @@ def run_ike(wind_models = None, amr_level = None):
     for model in wind_models:
         print('model: %s' %model)  
         #run_log_file.write("Ike Amr%s %s \n" % (str(amr_level), model))
-        jobs.append(StormJob(model, amr_level))  
+        jobs.append(StormJob(model, amr_level, storm))  
 
     controller = batch.HabaneroBatchController(jobs)
     controller.email = 'hq2152@columbia.edu'
@@ -140,9 +146,10 @@ if __name__ == '__main__':
     """
     
 
-    models = ['holland80', 'holland10', 'SLOSH', 'rankine', 'CLE',
-                   'modified-rankine', 'DeMaria'] 
-    #models = ['CLE']
+    #models = ['holland80', 'holland10', 'SLOSH', 'rankine', 'CLE',
+    #               'modified-rankine', 'DeMaria'] 
+    models = ['CLE']
 
-    run_ike(wind_models = models, amr_level = 6)  
-    #run_ike()  
+    #run_storm(wind_models = models, amr_level = 2, storm='katrina')  
+    #run_storm(storm='katrina', region='gulf') 
+    run_storm() 
