@@ -22,15 +22,11 @@ PLOTDIR = _plots               # Directory for plots
 
 # Compiler flags can be specified here or set as an environment variable
 #FFLAGS += -g -C -CB -CU -fpe0 -ftrapuv -fp-model precise -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp -check all 
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -gen_interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -g -check all -traceback -fpe0 -fp-model precise 
-#LFLAGS += -O2 -ipo -qopenmp -L$(NETCDF4_DIR)/lib -lnetcdff
-
-FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp
+FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp -check all 
+#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp  
 #FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -gen_interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
 LFLAGS += -O2 -ipo -qopenmp -L$(NETCDF4_DIR)/lib -lnetcdff
+
 
 # ---------------------------------
 # package sources for this program:

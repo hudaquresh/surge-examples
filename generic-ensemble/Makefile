@@ -1,7 +1,8 @@
+
 # Makefile for Clawpack code in this directory.
 # This version only sets the local files and frequently changed
-# # options, and then includes the standard makefile pointed to by CLAWMAKE.
- CLAWMAKE = $(CLAW)/clawutil/src/Makefile.common
+# options, and then includes the standard makefile pointed to by CLAWMAKE.
+CLAWMAKE = $(CLAW)/clawutil/src/Makefile.common
 
 # See the above file for details and a list of make options, or type
 #   make .help
@@ -19,18 +20,7 @@ SETPLOT_FILE = setplot.py      # File containing function to set plots
 PLOTDIR = _plots               # Directory for plots
 
 # Environment variable FC should be set to fortran compiler, e.g. gfortran
-
-# Compiler flags can be specified here or set as an environment variable
-#FFLAGS += -g -C -CB -CU -fpe0 -ftrapuv -fp-model precise -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp -check all 
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -gen_interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -g -check all -traceback -fpe0 -fp-model precise 
-#LFLAGS += -O2 -ipo -qopenmp -L$(NETCDF4_DIR)/lib -lnetcdff
-
-FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -O2 -ipo -qopenmp
-#FFLAGS += -DNETCDF -lnetcdff -I$(NETCDF4_DIR)/include -L$(NETCDF4_DIR)/lib -check all -warn all,nodec,interfaces -gen_interfaces -traceback -fpe0 -fp-stack-check -fdiagnostics-color=auto
-LFLAGS += -O2 -ipo -qopenmp -L$(NETCDF4_DIR)/lib -lnetcdff
+FFLAGS ?=
 
 # ---------------------------------
 # package sources for this program:
@@ -58,29 +48,27 @@ RIEMANN = $(CLAW)/riemann/src
 MODULES = \
 
 SOURCES = \
-	$(RIEMANN)/rpn2_geoclaw.f \
-	$(RIEMANN)/rpt2_geoclaw.f \
-	$(RIEMANN)/geoclaw_riemann_utils.f \
-
+  $(RIEMANN)/rpn2_geoclaw.f \
+  $(RIEMANN)/rpt2_geoclaw.f \
+  $(RIEMANN)/geoclaw_riemann_utils.f \
 
 #-------------------------------------------------------------------
 # Include Makefile containing standard definitions and make options:
 include $(CLAWMAKE)
 
 
+# Construct the topography data
 .PHONY: topo all
 
-# Construct the topography data
+gulf_caribbean.tt3:
+	python get_bathy.py
 
-#topo:
-#	../bathy/get_bathy.py ../bathy/
-
-topo:
-	bathy/get_bathy.py bathy/
+topo: gulf_caribbean.tt3
 
 -all:
-	$(MAKE) .topo
+	$(MAKE) topo
 	$(MAKE) .plots
+	$(MAKE) .htmls
 
 
 ### DO NOT remove this line - make depends on it ###

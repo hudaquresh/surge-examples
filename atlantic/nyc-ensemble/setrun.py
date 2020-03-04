@@ -17,6 +17,13 @@ import gzip
 
 import numpy as np
 
+pandas_support = True
+try:
+    import pandas
+except ImportError as e:
+    print("Pandas support not present, will not be used.")
+    pandas_support = False
+
 from clawpack.geoclaw.surge.storm import Storm
 import clawpack.clawutil as clawutil
 
@@ -68,11 +75,17 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.num_dim = num_dim
 
     # Lower and upper edge of computational domain:
-    clawdata.lower[0] = -99.0      # west longitude
-    clawdata.upper[0] = -70.0      # east longitude
+    # clawdata.lower[0] = -85.0      # west longitude
+    # clawdata.upper[0] = -55.0      # east longitude
 
-    clawdata.lower[1] = 8.0       # south latitude
-    clawdata.upper[1] = 32.0      # north latitude
+    # clawdata.lower[1] = 13.0       # south latitude
+    # clawdata.upper[1] = 45.0      # north latitude
+
+    clawdata.lower[0] = -83.0      # west longitude
+    clawdata.upper[0] = -55.0      # east longitude
+
+    clawdata.lower[1] = 15.0       # south latitude
+    clawdata.upper[1] = 45.0      # north latitude
 
     # Number of grid cells:
     degree_factor = 4  # (0.25º,0.25º) ~ (25237.5 m, 27693.2 m) resolution
@@ -121,7 +134,9 @@ def setrun(claw_pkg='geoclaw'):
 
     if clawdata.output_style == 1:
         # Output nout frames at equally spaced times up to tfinal:
-        clawdata.tfinal = days2seconds(1)
+        clawdata.tfinal = days2seconds(1.0)
+
+        # Output occurrence per day, 24 = every hour, 4 = every 6 hours
         recurrence = 4
         clawdata.num_output_times = int((clawdata.tfinal - clawdata.t0) *
                                         recurrence / (60**2 * 24))
@@ -138,7 +153,8 @@ def setrun(claw_pkg='geoclaw'):
         clawdata.total_steps = 1
         clawdata.output_t0 = True
 
-    clawdata.output_format = 'ascii'      # 'ascii' or 'binary'
+    clawdata.output_format = 'ascii'      # 'ascii' or 'netcdf' 
+
     clawdata.output_q_components = 'all'   # could be list such as [True,True]
     clawdata.output_aux_components = 'all'
     clawdata.output_aux_onlyonce = False    # output aux arrays only at t0
@@ -169,11 +185,12 @@ def setrun(claw_pkg='geoclaw'):
 
     # Desired Courant number if variable dt used, and max to allow without
     # retaking step with a smaller dt:
+    # clawdata.cfl_desired = 0.75
     clawdata.cfl_desired = 0.75
     clawdata.cfl_max = 1.0
 
     # Maximum number of time steps to allow between output times:
-    clawdata.steps_max = 5000
+    clawdata.steps_max = 2**16
 
     # ------------------
     # Method to be used:
@@ -207,12 +224,9 @@ def setrun(claw_pkg='geoclaw'):
     clawdata.use_fwaves = True    # True ==> use f-wave version of algorithms
 
     # Source terms splitting:
-    #   src_split == 0 or 'none'
-    #      ==> no source term (src routine never called)
-    #   src_split == 1 or 'godunov'
-    #      ==> Godunov (1st order) splitting used,
-    #   src_split == 2 or 'strang'
-    #      ==> Strang (2nd order) splitting used,  not recommended.
+    #   src_split == 0 or 'none'    ==> no source term
+    #   src_split == 1 or 'godunov' ==> Godunov (1st order) splitting used,
+    #   src_split == 2 or 'strang'  ==> Strang (2nd order) splitting used
     clawdata.source_split = 'godunov'
 
     # --------------------
@@ -237,21 +251,21 @@ def setrun(claw_pkg='geoclaw'):
     # Specify when checkpoint files should be created that can be
     # used to restart a computation.
 
-    clawdata.checkpt_style = 0 
+    clawdata.checkpt_style = 0
 
     if clawdata.checkpt_style == 0:
         # Do not checkpoint at all
         pass
 
-    elif np.abs(clawdata.checkpt_style) == 1:
+    elif clawdata.checkpt_style == 1:
         # Checkpoint only at tfinal.
         pass
 
-    elif np.abs(clawdata.checkpt_style) == 2:
+    elif clawdata.checkpt_style == 2:
         # Specify a list of checkpoint times.
         clawdata.checkpt_times = [0.1, 0.15]
 
-    elif np.abs(clawdata.checkpt_style) == 3:
+    elif clawdata.checkpt_style == 3:
         # Checkpoint every checkpt_interval timesteps (on Level 1)
         # and at the final time.
         clawdata.checkpt_interval = 5
@@ -262,19 +276,25 @@ def setrun(claw_pkg='geoclaw'):
     amrdata = rundata.amrdata
 
     # max number of refinement levels:
-    amrdata.amr_levels_max = 2
+    amrdata.amr_levels_max = 8
 
     # List of refinement ratios at each level (length at least mxnest-1)
-    amrdata.refinement_ratios_x = [2, 2, 2, 6, 16]
-    amrdata.refinement_ratios_y = [2, 2, 2, 6, 16]
-    amrdata.refinement_ratios_t = [2, 2, 2, 6, 16]
+    #amrdata.refinement_ratios_x = [2, 2, 2, 2, 6, 8]
+    #amrdata.refinement_ratios_y = [2, 2, 2, 2, 6, 8]
+    #amrdata.refinement_ratios_t = [2, 2, 2, 2, 6, 8]
+    amrdata.refinement_ratios_x = [2,2,2,6,4,4]
+    amrdata.refinement_ratios_y = [2,2,2,6,4,4]
+    amrdata.refinement_ratios_t = [2,2,2,6,4,4]
+    #amrdata.refinement_ratios_x = [2, 4, 8, 8, 8, 8, 8, 2]
+    #amrdata.refinement_ratios_y = [2, 4, 8, 8, 8, 8, 8, 2]
+    #amrdata.refinement_ratios_t = [2, 4, 8, 8, 8, 8, 8, 2]
 
     # Specify type of each aux variable in amrdata.auxtype.
     # This must be a list of length maux, each element of which is one of:
     #   'center',  'capacity', 'xleft', or 'yleft'  (see documentation).
 
     amrdata.aux_type = ['center', 'capacity', 'yleft', 'center', 'center',
-                        'center', 'center']
+                        'center', 'center', 'center', 'center']
 
     # Flag using refinement routine flag2refine rather than richardson error
     amrdata.flag_richardson = False    # use Richardson?
@@ -313,27 +333,38 @@ def setrun(claw_pkg='geoclaw'):
     regions = rundata.regiondata.regions
     # to specify regions of refinement append lines of the form
     #  [minlevel,maxlevel,t1,t2,x1,x2,y1,y2]
-    # Gauges from Ike AWR paper (2011 Dawson et al)
-    rundata.gaugedata.gauges.append([1, -95.04, 29.07,
-                                     rundata.clawdata.t0,
-                                     rundata.clawdata.tfinal])
-    rundata.gaugedata.gauges.append([2, -94.71, 29.28,
-                                     rundata.clawdata.t0,
-                                     rundata.clawdata.tfinal])
-    rundata.gaugedata.gauges.append([3, -94.39, 29.49,
-                                     rundata.clawdata.t0,
-                                     rundata.clawdata.tfinal])
-    rundata.gaugedata.gauges.append([4, -94.13, 29.58,
-                                     rundata.clawdata.t0,
-                                     rundata.clawdata.tfinal])
+    #regions.append([1,6,days2seconds(-0.45),days2seconds(0.10),-74.1,-73.7,40.55,48.5])
+    #regions.append([1,5,days2seconds(0.10),days2seconds(1),-74.2,-73.7,40.55,48.5])
 
-    # Force the gauges to also record the wind and pressure fields
-    rundata.gaugedata.aux_out_fields = [4, 5, 6]
+    regions.append([1,6,days2seconds(-0.45),days2seconds(0.10),-74.0,-73.7,40.0,48.5])
+    regions.append([1,5,days2seconds(0.10),days2seconds(1),-74.1,-73.7,40.0,48.5])
+    # == setgauges.data values ==
+    # for gauges append lines of the form  [gaugeno, x, y, t1, t2]
+    # Read in and parse the excel spreadsheet of entry points
+    #if pandas_support:
+    #    path = os.path.join(os.environ['DATA_PATH'], "crisp_manhattan",
+    #                        "BuildingFootprintsManhattan.xls")
+    #    data = pandas.read_excel(path, usecols=[0, 14, 15])
+    #    for i in range(data.shape[0]):
+    #        rundata.gaugedata.gauges.append([data['FID'][i],
+    #                                         data['Longitude'][i],
+    #                                         data['Latitude'][i],
+    #                                         clawdata.t0,
+    #                                         clawdata.tfinal])
+    #else:
+    #    print("Gauges not set via excel file.")
+    #    print("  Install pandas to enable reading of the data file.")
+
+    # Output only the surface
+    # rundata.gaugedata.q_out_fields = [4]
+    # Output the storm data
+    # rundata.gaugedata.aux_out_fields = [4, 5, 6]
+
 
     # ------------------------------------------------------------------
     # GeoClaw specific parameters:
     # ------------------------------------------------------------------
-    rundata = setgeo(rundata)
+    #rundata = setgeo(rundata)
 
     return rundata
     # end of function setrun
@@ -364,7 +395,7 @@ def setgeo(rundata):
 
     # == Algorithm and Initial Conditions ==
     # Due to seasonal swelling of gulf we set sea level higher
-    geo_data.sea_level = 0.28
+    geo_data.sea_level = 0.5
     geo_data.dry_tolerance = 1.e-2
 
     # Refinement Criteria
@@ -378,16 +409,18 @@ def setgeo(rundata):
     # == settopo.data values ==
     topo_data = rundata.topo_data
     topo_data.topofiles = []
-    # for topography, append lines of the form
-    #   [topotype, minlevel, maxlevel, t1, t2, fname]
-    # See regions for control over these regions, need better bathy data for
-    # the smaller domains
-    clawutil.data.get_remote_file(
-           "http://www.columbia.edu/~ktm2132/bathy/gulf_caribbean.tt3.tar.bz2")
-    topo_path = os.path.join(scratch_dir, 'gulf_caribbean.tt3')
+    topo_path = os.path.join(os.getcwd(),"../bathy") 
+    atlantic_ocean = os.path.join(topo_path, "atlantic_1min.tt3")
+    new_york = os.path.join(topo_path, "newyork_3s.tt3") 
     topo_data.topofiles.append([3, 1, 5, rundata.clawdata.t0,
-                                rundata.clawdata.tfinal,
-                                topo_path])
+                                         rundata.clawdata.tfinal,
+                                         atlantic_ocean])
+    topo_data.topofiles.append([3, 1, 8, rundata.clawdata.t0,
+                                         rundata.clawdata.tfinal,
+                                         new_york])
+
+    # == setqinit.data values ==
+    rundata.qinit_data.qinit_type = 0
 
     # == setfixedgrids.data values ==
     rundata.fixed_grid_data.fixedgrids = []
@@ -400,7 +433,7 @@ def setgeo(rundata):
     # ================
     data = rundata.surge_data
 
-    # Source term controls
+    # Source term controls - These are currently not respected
     data.wind_forcing = True
     data.drag_law = 1
     data.pressure_forcing = True
@@ -412,30 +445,26 @@ def setgeo(rundata):
     data.R_refine = [60.0e3, 40e3, 20e3]
 
     # Storm parameters - Parameterized storm (Holland 1980)
-    data.storm_specification_type = 'holland80'  # (type 1)
-    data.storm_file = os.path.expandvars(os.path.join(os.getcwd(),
-                                         'ike.storm'))
+    #data.storm_specification_type = 'holland80'
+    #data.storm_file = os.path.expandvars(os.path.join(os.getcwd(),
+    #                                     'sandy.storm'))
 
-    # Convert ATCF data to GeoClaw format
-    clawutil.data.get_remote_file(
-                   "http://ftp.nhc.noaa.gov/atcf/archive/2008/bal092008.dat.gz")
-    atcf_path = os.path.join(scratch_dir, "bal092008.dat")
-    # Note that the get_remote_file function does not support gzip files which
-    # are not also tar files.  The following code handles this
-    with gzip.open(".".join((atcf_path, 'gz')), 'rb') as atcf_file,    \
-            open(atcf_path, 'w') as atcf_unzipped_file:
-        atcf_unzipped_file.write(atcf_file.read().decode('ascii'))
+    ## Convert ATCF data to GeoClaw format
+    #clawutil.data.get_remote_file(
+    #               "http://ftp.nhc.noaa.gov/atcf/archive/2012/bal182012.dat.gz")
+    #atcf_path = os.path.join(scratch_dir, "bal182012.dat")
+    ## Note that the get_remote_file function does not support gzip files which
+    ## are not also tar files.  The following code handles this
+    #with gzip.open(".".join((atcf_path, 'gz')), 'rb') as atcf_file,    \
+    #        open(atcf_path, 'w') as atcf_unzipped_file:
+    #    atcf_unzipped_file.write(atcf_file.read().decode('ascii'))
 
-    # Uncomment/comment out to use the old version of the Ike storm file
-    # ike = Storm(path="old_ike.storm", file_format="ATCF")
-    #ike = Storm(path=atcf_path, file_format="ATCF")
-    ike = Storm(path='old_ike.storm', file_format="ATCF") 
+    #sandy = Storm(path=atcf_path, file_format="ATCF", single_storm=True)
 
     # Calculate landfall time - Need to specify as the file above does not
-    # include this info (9/13/2008 ~ 7 UTC)
-    ike.time_offset = datetime.datetime(2008, 9, 13, 7)
+    #sandy.time_offset = datetime.datetime(2012, 10, 29, 8, 0)
 
-    ike.write(data.storm_file, file_format='geoclaw')
+    #sandy.write(data.storm_file, file_format='geoclaw')
 
     # =======================
     #  Set Variable Friction
@@ -450,12 +479,7 @@ def setgeo(rundata):
     data.friction_regions.append([rundata.clawdata.lower,
                                   rundata.clawdata.upper,
                                   [np.infty, 0.0, -np.infty],
-                                  [0.030, 0.022]])
-
-    # La-Tex Shelf
-    data.friction_regions.append([(-98, 25.25), (-90, 30),
-                                  [np.infty, -10.0, -200.0, -np.infty],
-                                  [0.030, 0.012, 0.022]])
+                                  [0.050, 0.025]])
 
     return rundata
     # end of function setgeo

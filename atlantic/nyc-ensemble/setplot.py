@@ -67,7 +67,7 @@ def setplot(plotdata):
     speed_limits = [0.0,speed_range]
 
     wind_limits = [0, 55]
-    pressure_limits = [966, 1013]
+    pressure_limits = [200, 1025]
     friction_bounds = [0.01, 0.04]
     vorticity_limits = [-1.e-2, 1.e-2]
     land_bounds = [-10, 50]
@@ -83,16 +83,15 @@ claw_data.upper[0]],
 claw_data.upper[1]],
                                "shrink": 1.0,
                                "figsize": [6.4, 4.8]},
-               'Mumbai Region': {"xlimits": [70, 75],
-                                    "ylimits": [17, 22],
+               'Tri-State Region': {"xlimits": [-74.5,-71.0],
+                                    "ylimits": [40.0,41.5],
                                     "shrink": 1.0,
                                     "figsize": [6.4, 4.8]},
-                'Mumbai': {"xlimits": [72.6, 73.15],
-                        "ylimits": [18.80, 19.25],
+                'NYC': {"xlimits": [-74.2,-73.7],
+                        "ylimits": [40.4,40.85],
                         "shrink": 1.0,
                         "figsize": [6.4, 4.8]}
                }
-
     def gauge_location_afteraxes(cd):
         plt.subplots_adjust(left=0.12, bottom=0.06, right=0.97, top=0.97)
         surge_afteraxes(cd)
@@ -199,6 +198,50 @@ claw_data.upper[1]],
     plotfigure.show = True
     plotfigure.clf_each_gauge = True
 
+    stations = [('8531680','Sandy Hook, NY'),
+                ('8518750', 'The Battery, NY'),
+                ('8519483', 'Bergen Point West Reach, NY'), 
+                ('8516945', 'Kings Point, NY')]
+                #('8531680','Sandy Hook, NY'),
+                #('n03020','Narrows,NY')]
+
+    landfall_time = np.datetime64('2012-10-29T23:30')
+    begin_date = datetime.datetime(2012, 10, 28)
+    end_date = datetime.datetime(2012, 10, 31,)
+
+    def get_actual_water_levels(station_id):
+        # Fetch water levels and tide predictions for given station
+        date_time, water_level, tide = fetch_noaa_tide_data(station_id,
+                begin_date, end_date)
+
+        # Calculate times relative to landfall
+        seconds_rel_landfall = (date_time - landfall_time) / np.timedelta64(1,
+'s')
+        # Subtract tide predictions from measured water levels
+        water_level -= tide
+
+        return seconds_rel_landfall, water_level
+
+    # def get_actual_current(station_id):
+    #     # Fetch currents for given station_name
+    #     date_time, water_level, tide, currents =
+    #     fetch_noaa_tide_data(station_id,
+    #             begin_date, end_date)
+    #
+    #     # calculate times relative to landfall_time
+    #     secs_rel_landfall = (date_time - landfall_time) / np.timedelta64(1,
+    #     's')
+    #     return secs_rel_landfall, currents
+    #
+    # def calc_currents(cd):
+    #     height = cd.q[0,:]
+    #     where_zero = np.where(height == 0)[0]
+    #     for index in where_zero:
+    #         height[index] = 1
+    #     vel_magnitude = (cd.q[1,:]/height)**2 + (cd.q[2,:]/height)**2
+    #     vel_magnitude = vel_magnitude**0.5
+    #     return vel_magnitude
+    
     def gauge_afteraxes(cd):
 
         axes = plt.gca()

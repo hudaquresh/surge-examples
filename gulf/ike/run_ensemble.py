@@ -60,7 +60,7 @@ class StormJob(batch.HabaneroJob):
 
         self.type = "storm-surge"
  
-        self.name = "old-ike-amr%s" %str(amr_level) 
+        self.name = "ike-amr%s" %str(amr_level) 
         self.prefix = "%s" %(wind_model)  
         self.executable = 'xgeoclaw'
 
@@ -144,5 +144,5 @@ if __name__ == '__main__':
                    'modified-rankine', 'DeMaria'] 
     #models = ['CLE']
 
-    run_ike(wind_models = models, amr_level = 6)  
+    run_ike(wind_models = models, amr_level = 2)  
     #run_ike()  

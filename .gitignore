@@ -33,9 +33,28 @@
 *.out
 *.app
 
+# Shell scripts
+*.sh
+
+# Byte-compiled/optimized/DLL files 
+atlantic/nyc-ensemble/storm-surge/__pycache__/
+indian/mumbai/storm-surge/__pycache__/
+
+# Extraneous files 
+*.logfile
+*.tar.bz2 
+
 # Folders
 ensemble_square_basin/storm-surge/
 ensemble_square_basin/data/synthetic_storm_files/
 gulf/ike/storm-surge/
 gulf/ike/observed-gauges/
 gulf/old-ike/storm-surge
+atlantic/nyc-ensemble/storm-surge
+atlantic/nyc-ensemble/max-surge
+atlantic/nyc-ensemble/gauge-plots
+atlantic/nyc-ensemble/new_york
+indian/mumbai/storm-surge
+indian/mumbai/max-surge
+indian/mumbai/gauge-plots
+indian/mumbai/mumbai

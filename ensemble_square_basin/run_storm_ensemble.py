@@ -71,8 +71,8 @@ class StormJob(batch.HabaneroJob):
                        storm_directory,
                        storm_object, 
                        wind_model, 
-                       amr_level, 
-                       storm_ensemble_type, 
+                       amr_level,
+                       storm_ensemble_type,  
                        region, 
                        gauges, 
                        regions):  
@@ -84,7 +84,7 @@ class StormJob(batch.HabaneroJob):
         """
 
         super(StormJob, self).__init__()
-
+        
         self.type = "storm-surge"
         self.storm_ensemble_type = storm_ensemble_type
         self.region = region 
@@ -154,6 +154,9 @@ class StormJob(batch.HabaneroJob):
                                                 self.rundata.clawdata.tfinal, 
                                                 regions[i][2], regions[i][3], 
                                                 regions[i][4], regions[i][5]])
+
+
+
 
     def __str__(self):
         output = super(StormJob, self).__str__()

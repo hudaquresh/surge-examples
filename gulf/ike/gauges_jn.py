@@ -35,7 +35,7 @@ def gather_file_paths(storm):
     paths = [] 
     for w in models: 
         storm_run = '%s-%s' %(storm,w)
-        dir_path = os.path.join(os.getcwd(), 'storm-surge', 'old-ike-amr2')
+        dir_path = os.path.join(os.getcwd(), 'storm-surge', 'ike-amr2')
 #         dir_path = '/Users/hudaqureshi/clawpack/geoclaw/examples/storm-surge'
         file_path = os.path.join(dir_path,'%s_output' %w)
         paths.append(file_path)
@@ -104,7 +104,7 @@ def plot_data(storm):
 import sys
 stations = 'WXYZ'
 
-storm = 'old-ike'
+storm = 'ike'
 depth = [-12.8, -9.3, -8.45, -9.2]
 # line_style = ['--', '-.',':', (4,6)]
 lstyle = ['-', '--', '-.', ':', '-', '--', '-.', ':']
@@ -151,7 +151,7 @@ fig, ax = plt.subplots(n_rows, n_cols, figsize=(16,8))
 x = 0 
 for i in range(n_rows):
     for j in range(n_cols):
-        geoclaw_gauges = gather_data('old-ike')
+        geoclaw_gauges = gather_data('ike')
         for w in models: 
             days = seconds2days(geoclaw_gauges[w][x].t)
             ax[i, j].plot(days, geoclaw_gauges[w][x].q[3], 
